@@ -13,13 +13,15 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity(name="answers_certifications_students")
+@Builder
+@Entity(name = "answers_certifications_students")
 public class AnswersCertifications {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
