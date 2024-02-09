@@ -3,6 +3,7 @@ package com.rocketseat.certification_nlw.modules.students.useCases;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 import com.rocketseat.certification_nlw.modules.questions.entities.Question;
 import com.rocketseat.certification_nlw.modules.questions.repositories.QuestionRepository;
 import com.rocketseat.certification_nlw.modules.students.dto.StudentCertificationAnswersDTO;
+import com.rocketseat.certification_nlw.modules.students.dto.VerifyHasCertificationDTO;
 import com.rocketseat.certification_nlw.modules.students.entities.AnswersCertifications;
 import com.rocketseat.certification_nlw.modules.students.entities.CertificationStudent;
 import com.rocketseat.certification_nlw.modules.students.entities.Student;
@@ -28,10 +30,20 @@ public class StudentCertificationAnswersUseCase {
     @Autowired
     private CertificationStudentRepository certificationStudentRepo;
 
-    public CertificationStudent execute(StudentCertificationAnswersDTO dto) {
+    @Autowired
+    private VerifyIfHasCertificationUseCase verifyIfHasCertificationUseCase;
+
+    public CertificationStudent execute(StudentCertificationAnswersDTO dto) throws Exception {
+
+        var hasCertification = verifyIfHasCertificationUseCase
+                .execute(new VerifyHasCertificationDTO(dto.getEmail(), dto.getTechnology()));
+        if (hasCertification) {
+            throw new Exception("Student already has certification");
+        }
 
         List<Question> questions = questionRepo.findByTechnology(dto.getTechnology());
         List<AnswersCertifications> answersCertifications = new ArrayList<>();
+        AtomicInteger correctAnswersCounter = new AtomicInteger(0); // to enable incrementing inside lambda
 
         dto.getQuestionsAnswers()
                 .stream().forEach(qa -> {
@@ -43,6 +55,7 @@ public class StudentCertificationAnswersUseCase {
 
                     if (correctAlternative.getId().equals(qa.getAlternativeId())) {
                         qa.setCorrect(true);
+                        correctAnswersCounter.getAndIncrement();
                     } else {
                         qa.setCorrect(false);
                     }
@@ -67,10 +80,20 @@ public class StudentCertificationAnswersUseCase {
 
         CertificationStudent cs = CertificationStudent.builder()
                 .technology(dto.getTechnology())
-                .answersCertifications(answersCertifications)
+                .grade(correctAnswersCounter.get())
                 .studentId(studentId).build();
 
         var certification = certificationStudentRepo.save(cs);
+
+        answersCertifications.stream().forEach(ac -> {
+            ac.setCertificationId(certification.getId());
+            ac.setCertificationStudent(cs);
+        });
+
+        certification.setAnswersCertifications(answersCertifications);
+
+        certificationStudentRepo.save(certification);
+
         return certification;
     }
 }
