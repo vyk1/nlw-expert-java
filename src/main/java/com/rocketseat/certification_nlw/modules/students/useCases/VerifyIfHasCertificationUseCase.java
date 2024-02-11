@@ -14,6 +14,8 @@ public class VerifyIfHasCertificationUseCase {
 
     public boolean execute(VerifyHasCertificationDTO dto) {
         var res = repo.findByStudentEmailAndTechnology(dto.getEmail(), dto.getTechnology());
+        // Se a lista estiver vazia, significa que não há certificação
+        // e o estudante pode realizar a prova
         if(res.isEmpty()) {
             return false;
         }

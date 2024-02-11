@@ -33,7 +33,7 @@ public class AnswersCertifications {
     private UUID certificationId;
 
     @ManyToOne
-    @JoinColumn(name = "certification_student_id", insertable = false, updatable = false)
+    @JoinColumn(name = "certification_id", insertable = false, updatable = false)
     @JsonBackReference // avoids infinite loop (defines flow the serialization/deserialization)
     private CertificationStudent certificationStudent;
 

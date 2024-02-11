@@ -27,7 +27,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Entity(name = "certifications_students")
+@Entity(name = "certifications")
 public class CertificationStudent {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -38,6 +38,7 @@ public class CertificationStudent {
 
     @ManyToOne
     @JoinColumn(name = "student_id", insertable = false, updatable = false)
+    // @JsonBackReference // avoids infinite loop (defines flow the serialization/deserialization)
     private Student student;
 
     @Column(length = 100)

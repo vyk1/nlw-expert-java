@@ -1,4 +1,4 @@
-package com.rocketseat.certification_nlw.modules.questions.controller;
+package com.rocketseat.certification_nlw.modules.questions.controllers;
 
 import java.util.List;
 import java.util.stream.Collectors;

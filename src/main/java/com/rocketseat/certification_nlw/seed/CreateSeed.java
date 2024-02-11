@@ -1,4 +1,4 @@
-package com.rocketseat.certification_nlw.modules.seed;
+package com.rocketseat.certification_nlw.seed;
 
 import java.io.IOException;
 import java.nio.file.Files;
